@@ -9,21 +9,34 @@ erb config/nginx.conf.erb > config/nginx.conf
 # make sure we have a place for logs
 mkdir -p logs/nginx
 touch logs/nginx/access.log logs/nginx/error.log
-
 echo 'buildpack=nginx at=logs-initialized'
 
 # Redirect NGINX logs to stdout.
 tail -qF -n 0 logs/nginx/*.log &
 
-# Checking that CloudFlare IPv4 and IPv6 has been configured
-if [ `grep -oc 'set_real_ip_from' config/nginx.conf` -lt "10" ]; then
-exit "not enough cloudflare ips";
+if [ -z $IN_DOCKER ];then 
+
+	# Checking that CloudFlare IPv4 and IPv6 has been configured
+	if [ `grep -oc 'set_real_ip_from' config/nginx.conf` -lt "10" ]; then
+	exit "not enough cloudflare ips";
+	fi
 fi
 
 # Start NGINX
 # We expect nginx to run in foreground.
-echo 'buildpack=nginx at=nginx-start'
-bin/nginx -p . -c config/nginx.conf
-echo "buildpack=nginx at=exit"
+if [ -z $IN_DOCKER ];then
+	echo 'buildpack=nginx at=nginx-start'
+	bin/nginx -p . -c config/nginx.conf
+	echo "buildpack=nginx at=exit"
+else
+	sed -i "/set_real_ip_from/d" config/nginx.conf
+	if [ "$DEBUG_MODE" = "full" ];then
+		echo "Running nginx in full debug mode. Set DEBUG_MODE to \"normal\" when finished"
+		/opt/nginx-debug/sbin/nginx -p . -c config/nginx.conf
+	else
+		echo "Running nginx in normal debug mode. Set DEBUG_MODE to \"full\" if you need more detail."
+		sbin/nginx -p . -c config/nginx.conf
+	fi
+fi
 
 exit 1

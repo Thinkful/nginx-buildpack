@@ -10,10 +10,10 @@ NGINX_VERSION=1.8.0
 PCRE_VERSION=8.38
 HEADERS_MORE_VERSION=0.25
 
-INSTALL_ROOT=$1
+INSTALL_ROOT=""
 
 nginx_tarball_url=http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz
-pcre_tarball_url=ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/pcre-${PCRE_VERSION}.tar.bz2
+pcre_tarball_url=https://downloads.sourceforge.net/project/pcre/pcre/${PCRE_VERSION}/pcre-${PCRE_VERSION}.tar.bz2
 headers_more_nginx_module_url=https://github.com/openresty/headers-more-nginx-module/archive/v${HEADERS_MORE_VERSION}.tar.gz
 
 temp_dir=$(mktemp -d /tmp/nginx.XXXXXXXXXX)
@@ -32,6 +32,7 @@ echo "Downloading $headers_more_nginx_module_url"
 
 echo "Starting build..."
 
+
 (
 	cd nginx-${NGINX_VERSION}
 	./configure \
@@ -41,7 +42,23 @@ echo "Starting build..."
 		--add-module=/${temp_dir}/nginx-${NGINX_VERSION}/headers-more-nginx-module-${HEADERS_MORE_VERSION} \
 		--with-http_realip_module \
 		--with-ipv6
-	make install
+	make install DESTDIR=/opt/nginx
 )
+
+if [ $# = 1 ];then
+(
+	cd $temp_dir/nginx-${NGINX_VERSION}
+	./configure \
+		--with-pcre=pcre-${PCRE_VERSION} \
+		--with-http_ssl_module \
+		--prefix=${INSTALL_ROOT} \
+		--add-module=/${temp_dir}/nginx-${NGINX_VERSION}/headers-more-nginx-module-${HEADERS_MORE_VERSION} \
+		--with-http_realip_module \
+        --with-debug
+		--with-ipv6
+	make install DESTDIR=/opt/nginx-debug
+)
+
+fi
 
 echo "Build completed successfully."
