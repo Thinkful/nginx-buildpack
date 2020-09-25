@@ -45,6 +45,8 @@ fi
 		--prefix=${INSTALL_ROOT} \
 		--add-module=/${temp_dir}/nginx-${NGINX_VERSION}/headers-more-nginx-module-${HEADERS_MORE_VERSION} \
 		--with-http_realip_module \
+		--with-http_map_module \
+		--with-http_split_clients_module \
 		--with-ipv6
 	make install
 )
@@ -58,6 +60,8 @@ if [ $DEBUG -eq 1 ];then
 		--prefix=${INSTALL_ROOT} \
 		--add-module=/${temp_dir}/nginx-${NGINX_VERSION}/headers-more-nginx-module-${HEADERS_MORE_VERSION} \
 		--with-http_realip_module \
+		--with-http_map_module \
+		--with-http_split_clients_module \
         --with-debug
 		--with-ipv6
 	make install DESTDIR=/opt/nginx-debug
