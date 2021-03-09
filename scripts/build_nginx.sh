@@ -45,8 +45,7 @@ fi
 		--prefix=${INSTALL_ROOT} \
 		--add-module=/${temp_dir}/nginx-${NGINX_VERSION}/headers-more-nginx-module-${HEADERS_MORE_VERSION} \
 		--with-http_realip_module \
-		--with-http_stub_status_module \
-		--with-ipv6
+		--with-http_stub_status_module
 	make install
 )
 
@@ -61,7 +60,6 @@ if [ $DEBUG -eq 1 ];then
 		--with-http_realip_module \
 		--with-http_stub_status_module \
         --with-debug
-		--with-ipv6
 	make install DESTDIR=/opt/nginx-debug
 )
 
