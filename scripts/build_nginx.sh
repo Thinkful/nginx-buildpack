@@ -40,7 +40,7 @@ DESTDIR=/opt/nginx
 		--with-pcre=pcre-${PCRE_VERSION} \
 		--with-http_ssl_module \
 		--add-module=/${temp_dir}/nginx-${NGINX_VERSION}/headers-more-nginx-module-${HEADERS_MORE_VERSION} \
-		--prefix '' \
+		--prefix $DESTDIR \
 		--with-http_realip_module \
 		--with-http_stub_status_module
 	make install
@@ -48,6 +48,7 @@ DESTDIR=/opt/nginx
 
 if [ $DEBUG -eq 1 ];then
 (
+    DESTDIR=/opt/nginx-debug
     echo "Building debug version"
 	cd $temp_dir/nginx-${NGINX_VERSION}
 	./configure \
@@ -55,10 +56,10 @@ if [ $DEBUG -eq 1 ];then
 		--with-http_ssl_module \
 		--add-module=/${temp_dir}/nginx-${NGINX_VERSION}/headers-more-nginx-module-${HEADERS_MORE_VERSION} \
 		--with-http_realip_module \
-		--prefix '' \
+		--prefix $DESTDIR \
 		--with-http_stub_status_module \
         --with-debug
-	make install DESTDIR=/opt/nginx-debug
+	make install
 )
 
 fi
