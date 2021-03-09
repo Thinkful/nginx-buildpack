@@ -5,6 +5,7 @@
 # application build process.
 # We would like to build an NGINX binary for the buildpack on the
 # exact machine in which the binary will run.
+set -e
 
 NGINX_VERSION=1.16.1
 PCRE_VERSION=8.41
@@ -32,12 +33,11 @@ echo "Downloading $headers_more_nginx_module_url"
 
 echo "Starting build..."
 
-if [ $DEBUG -eq 1 ];then
-    DESTDIR=/opt/nginx
-    INSTALL_ROOT=""
-fi
+DESTDIR=/opt/nginx
+INSTALL_ROOT=""
 
 (
+    echo "Building normal version"
 	cd nginx-${NGINX_VERSION}
 	./configure \
 		--with-pcre=pcre-${PCRE_VERSION} \
@@ -51,6 +51,7 @@ fi
 
 if [ $DEBUG -eq 1 ];then
 (
+    echo "Building debug version"
 	cd $temp_dir/nginx-${NGINX_VERSION}
 	./configure \
 		--with-pcre=pcre-${PCRE_VERSION} \
