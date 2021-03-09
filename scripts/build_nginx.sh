@@ -5,12 +5,11 @@
 # application build process.
 # We would like to build an NGINX binary for the buildpack on the
 # exact machine in which the binary will run.
+set -e
 
 NGINX_VERSION=1.16.1
 PCRE_VERSION=8.41
 HEADERS_MORE_VERSION=0.33
-
-INSTALL_ROOT=$1
 
 nginx_tarball_url=http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz
 pcre_tarball_url=https://downloads.sourceforge.net/project/pcre/pcre/${PCRE_VERSION}/pcre-${PCRE_VERSION}.tar.bz2
@@ -32,35 +31,35 @@ echo "Downloading $headers_more_nginx_module_url"
 
 echo "Starting build..."
 
-if [ $DEBUG -eq 1 ];then
-    DESTDIR=/opt/nginx
-    INSTALL_ROOT=""
-fi
+DESTDIR=/opt/nginx
 
 (
+    echo "Building normal version"
 	cd nginx-${NGINX_VERSION}
 	./configure \
 		--with-pcre=pcre-${PCRE_VERSION} \
 		--with-http_ssl_module \
-		--prefix=${INSTALL_ROOT} \
 		--add-module=/${temp_dir}/nginx-${NGINX_VERSION}/headers-more-nginx-module-${HEADERS_MORE_VERSION} \
+		--prefix=$DESTDIR \
 		--with-http_realip_module \
-		--with-ipv6
+		--with-http_stub_status_module
 	make install
 )
 
 if [ $DEBUG -eq 1 ];then
 (
+    DESTDIR=/opt/nginx-debug
+    echo "Building debug version"
 	cd $temp_dir/nginx-${NGINX_VERSION}
 	./configure \
 		--with-pcre=pcre-${PCRE_VERSION} \
 		--with-http_ssl_module \
-		--prefix=${INSTALL_ROOT} \
 		--add-module=/${temp_dir}/nginx-${NGINX_VERSION}/headers-more-nginx-module-${HEADERS_MORE_VERSION} \
 		--with-http_realip_module \
+		--prefix=$DESTDIR \
+		--with-http_stub_status_module \
         --with-debug
-		--with-ipv6
-	make install DESTDIR=/opt/nginx-debug
+	make install
 )
 
 fi

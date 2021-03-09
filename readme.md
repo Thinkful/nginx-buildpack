@@ -1,5 +1,8 @@
 ## Heroku Buildpack: nginx
 
+
+**NOTE** This repo builds the basic image for our local development version of chickadee. It is no longer used in production (heroku) anymore.
+
 This buildpack was forked from
 https://github.com/ryandotsmith/nginx-buildpack but is taking
 a slightly different approach by now.  
